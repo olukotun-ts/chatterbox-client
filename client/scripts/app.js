@@ -2,9 +2,9 @@
 // x retrieve messages from server
 // x send messages to server
 // secure against xss attacks in messages as well as user names and room names etc.
-// allow for chat rooms
-// 'befriend users' functionality by clicking on usernames
-  // bold all messages from those users
+// x allow for chat rooms
+// x 'befriend users' functionality by clicking on usernames
+  // x bold all messages from those users
 
 window.url = 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages';
 var $chatContainer;
@@ -38,7 +38,7 @@ $(document).ready(function() {
     }
   });
 
-  $chatContainer.click('.user', function(event) {
+  $chatContainer.click('.username', function(event) {
     var userClicked = event.target.text;
     if (userClicked !== undefined) {
       if (friends.indexOf(userClicked) === -1) {
@@ -116,8 +116,8 @@ var getMessages = function(roomname) {
 var renderMessages = function() {
   _.forEach(messages, function(messageObj) {
     // console.log("inside forEach");
-    var $messageDiv = $('<div class="message"></div>');
-    var $userName = $('<a class="user"></a>');
+    var $messageDiv = $('<div class="chat"></div>');
+    var $userName = $('<a class="username"></a>');
     var $messageBody = $('<div class="message-body"></div>');
     var $time = $('<time class="timestamp"></time>');
 
@@ -125,11 +125,15 @@ var renderMessages = function() {
     $messageBody.text(messageObj.text);
     $time.text(messageObj.createdAt);
 
+    if(friends.indexOf(messageObj.username) !== -1) {
+      $messageDiv.addClass('friend');
+    }
+
     $messageDiv.append($userName, $messageBody, $time);
     $chatContainer.append($messageDiv);
 
     // populate rooms object
-    if(!rooms[messageObj.roomname]) {
+    if(!rooms[messageObj.roomname] && messageObj.roomname !== undefined) {
       rooms[messageObj.roomname] = messageObj.roomname;
       var $room = $('<option></option>');
       $room.text(messageObj.roomname);
