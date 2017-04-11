@@ -1,6 +1,6 @@
 // Objectives:
 // x retrieve messages from server
-// send messages to server
+// x send messages to server
 // secure against xss attacks in messages as well as user names and room names etc.
 // allow for chat rooms
 // 'befriend users' functionality by clicking on usernames
@@ -9,8 +9,10 @@
 window.url = 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages';
 var $chatContainer;
 var rooms = {};
+var $roomName;
 var messages = [];
 var username;
+var friends = [];
 
 // onLoad event handler function
   // initial call to refresh handler (get messages)
@@ -26,6 +28,24 @@ $(document).ready(function() {
   // attach event handler on refresh button
   $('#refresh').click(function() {getMessages();});
 
+  // attach event handler on room drop-down list
+  $('select').change(function() {
+    $roomName = $(this).find(':selected').text();
+    if ($roomName === 'Add New Room...') {
+      $roomName = prompt('New room name');
+    } else {
+      getMessages($roomName);
+    }
+  });
+
+  $chatContainer.click('.user', function(event) {
+    var userClicked = event.target.text;
+    if (userClicked !== undefined) {
+      if (friends.indexOf(userClicked) === -1) {
+        friends.push(userClicked);
+      }
+    }
+  });
 
 });
 
@@ -42,7 +62,7 @@ var sendMessage = function() {
   var data = {};
   data.text = $('#user-message').val();
   data.username = username;
-  data.roomname = $('#room-selector select').val();
+  data.roomname = $roomName;
 
   $.ajax({
     url: window.url,
@@ -67,7 +87,7 @@ var getMessages = function(roomname) {
   // @tapOut
   var query = {order: '-createdAt'};  // Return msgs in desc order of time.
 
-  if (roomname) {  // If user selects a room, only get msgs from that room.
+  if (roomname !== 'Select a Room') {  // If user selects a room, only get msgs from that room.
     query.where = {roomname: roomname};
   }
 
