@@ -1,5 +1,5 @@
 // Objectives:
-// retrieve messages from server
+// x retrieve messages from server
 // send messages to server
 // secure against xss attacks in messages as well as user names and room names etc.
 // allow for chat rooms
@@ -8,8 +8,9 @@
 
 window.url = 'http://parse.hrr.hackreactor.com/chatterbox/classes/messages';
 var $chatContainer;
-
+var rooms = {};
 var messages = [];
+var username;
 
 // onLoad event handler function
   // initial call to refresh handler (get messages)
@@ -35,7 +36,11 @@ $(document).ready(function() {
 // };
 
 var sendMessage = function() {
-
+  if (!username) {
+    username = window.location.search.split('=')[1];
+  }
+  var body = $('#user-message').val;
+  console.log(body);
 };
 
 var getMessages = function() {
@@ -52,7 +57,7 @@ var getMessages = function() {
 
 var renderMessages = function() {
   _.forEach(messages, function(messageObj) {
-    console.log("inside forEach");
+    // console.log("inside forEach");
     var $messageDiv = $('<div class="message"></div>');
     var $userName = $('<a class="user"></a>');
     var $messageBody = $('<div class="message-body"></div>');
@@ -64,6 +69,14 @@ var renderMessages = function() {
 
     $messageDiv.append($userName, $messageBody, $time);
     $chatContainer.append($messageDiv);
+
+    // populate rooms object
+    if(!rooms[messageObj.roomname]) {
+      rooms[messageObj.roomname] = messageObj.roomname;
+      var $room = $('<option></option>');
+      $room.text(messageObj.roomname);
+      $('#room-selector select').append($room);
+    }
   });
 };
 
