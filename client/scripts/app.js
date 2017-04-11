@@ -24,7 +24,7 @@ $(document).ready(function() {
   $('#send-message').click(sendMessage);
 
   // attach event handler on refresh button
-  $('#refresh').click(getMessages);
+  $('#refresh').click(function() {getMessages();});
 
 
 });
@@ -39,14 +39,52 @@ var sendMessage = function() {
   if (!username) {
     username = window.location.search.split('=')[1];
   }
-  var body = $('#user-message').val;
-  console.log(body);
+  var data = {};
+  data.text = $('#user-message').val();
+  data.username = username;
+  data.roomname = $('#room-selector select').val();
+
+  $.ajax({
+    url: window.url,
+    type: 'POST',
+    data: JSON.stringify(data),
+    contentType: 'application/json',
+    success: function(data) {
+      console.log('Message successfully sent.');
+    },
+    error: function(data) {
+      console.error('Message failed to post with data: ' + data);
+    }
+  });
 };
 
-var getMessages = function() {
+var getMessages = function(roomname) {
+/*
   $.getJSON(window.url, function(data) {
     messages = data.results;
   }).done(renderMessages);
+*/
+  // @tapOut
+  var query = {order: '-createdAt'};  // Return msgs in desc order of time.
+
+  if (roomname) {  // If user selects a room, only get msgs from that room.
+    query.where = {roomname: roomname};
+  }
+
+  $.ajax({
+    url: url,
+    data: query,
+    type: 'GET',
+    contentType: 'application/json',
+    success: function (data) {
+      messages = data.results;
+      $chatContainer.empty();
+      renderMessages();
+    },
+    error: function(data) {
+      console.error('getMessage failure with data ' + data);
+    }
+  });
 };
 
 // <div class="message">
